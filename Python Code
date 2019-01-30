@@ -1,0 +1,683 @@
+#Rachel Asante Department 
+
+import mysql.connector
+from mysql.connector import Error
+
+
+#Product Hub
+def generalProducts():
+    #User Prompt
+    while True:
+        print("Please make a selection:")
+        print("1. View Product Information")
+        print("2. Change Rating of a Product")
+        print("3. Add a New Product")
+        print("4. Remove a Product")
+        print("5. Go Back")
+
+        userChoice = int(input("Enter here: "))
+
+        
+        if userChoice == 5:
+            #End Function
+            print("Returning to Main Menu...")
+            break
+
+
+        while userChoice < 1 or userChoice > 5:
+            #Input verification
+            userChoice = int(input("Invalid choice. Please select a number between 1 and 5: "))
+
+        if userChoice == 1:
+            #call function
+            viewProduct()
+
+        if userChoice == 2:
+            #call function
+            updatePRating()
+
+        if userChoice == 3:
+            #call function
+            newProduct()
+
+        if userChoice == 4:
+            #call function
+            deleteProduct()
+    
+
+#1. View Product Info
+def viewProduct():
+    #User Prompt
+    userInput = input("Please enter desired product id: ")
+
+
+    query = "select p_name, price, rating from products where p_id = " + userInput + ";"
+    mycursor.execute(query)
+    data = mycursor.fetchall()
+
+
+    #Print data
+    if not data:
+        print("Product not found")
+    else:
+        print("Name: " + str(data[0][0]))
+        print("Price: $" + str(data[0][1]))
+        print("Rating out of 5: " + str(data[0][2]))
+    return
+
+
+#2. Change Product Rating
+def updatePRating():
+    #User Prompt
+    userInput = input("Please enter desired product id: ")
+
+
+    query = "select rating from products where p_id = " + userInput + ";"
+    mycursor.execute(query)
+    data = mycursor.fetchall()
+
+
+    #Print data
+    if not data:
+        print("Product not found")
+    else:
+        userRating = int(input("Enter new rating between 1 and 5: "))
+
+
+        while userRating < 1 or userRating > 5:
+            #Input verification
+            userRating = int(input("Invalid entry. Please enter a number between 1 and 5: "))
+
+
+        query = "update products set rating = " + str(userRating) + " where p_id = " + userInput + ";"
+        mycursor.execute(query)
+        conn.commit()
+        print("Rating recorded in database")
+    return
+
+
+#3. Add New Product
+def newProduct():
+    #User Prompts
+    newId = input("Enter the product id: ")
+    newName = input("Enter the product name: ")
+    newPrice = input("Enter the desired price for the product: ")
+
+    
+    prodQuery = "select p_id from products;"
+    mycursor.execute(prodQuery)
+    prodIds = mycursor.fetchall()
+
+
+    #To ensure product doesn't already exist
+    productExists = False
+
+    
+    for prodId in prodIds:
+        if str(newId) == str(prodId[0]):
+           productExists = True
+
+
+    #When True
+    if productExists:
+        print("This product id already exists, so it cannot be added.")
+        return
+
+    if productExists == False:
+        #Add new record to database
+        insertProductQuery = "insert into products values(" + newId + ",\"" + newName + "\",\"" + newPrice + "\", NULL);"
+        mycursor.execute(insertProductQuery)
+        conn.commit()
+        print("Record added to database")
+    return
+
+
+#4. Remove Product
+def deleteProduct():
+    delId = input("Enter the product id: ")
+
+
+    prodQuery = "select p_id from products;"
+    mycursor.execute(prodQuery)
+    prodIds = mycursor.fetchall()
+
+    #To ensure product exits
+    productExists = False
+
+    
+    for prodId in prodIds:
+        if str(delId) == str(prodId[0]):
+           productExists = True
+
+    
+    if productExists == False:
+        print("This product id does not exist, so it cannot be deleted.")
+        return
+
+    if productExists == True:
+        #Remove record from database
+        deleteProductQuery = "delete from products where p_id = " + delId + ";"
+        mycursor.execute(deleteProductQuery)
+        conn.commit()
+        print("Record removed from database")
+    return
+
+        
+
+#======== Store Function ========#
+
+def viewStore():
+    userInput = input("Please enter store id: ")
+
+    query = "select business_hrs, phone_num, street_num, street_name, city, state, zip from store natural join location where s_id = \"" + userInput + "\";"
+    mycursor.execute(query)
+    data = mycursor.fetchall()
+
+    #Print data
+    if not data:
+        print("No stores found")
+    else:
+        print("Hours of operation: " + str(data[0][0]))
+        print("Phone Number: " + str(data[0][1]))
+        print("Address: " + str(data[0][2]) + " " + str(data[0][3]) + ", " + str(data[0][4]) + ", " + str(data[0][5]) + ", " + str(data[0][6]))
+    return
+
+
+
+#======== Catalog Function ========#
+    
+def viewCatalog():
+    userInput = input("Please enter Store id to view the items carried: ")
+
+    query = "select p_name, price from sells natural join products where s_id = \"" + userInput + "\";"
+    mycursor.execute(query)
+    data = mycursor.fetchall()
+
+    #Print data
+    if not data:
+        print("Store not found")
+    else:
+        for row in data:
+            print("Name: " + str(row[0]))
+            print("Price: $" + str(row[1]))
+    return
+
+
+
+#======== Customer Functions ========#
+
+#Customer Hub
+def generalCustomer():
+    #User Prompt
+    while True:
+        print("Please make a selection:")
+        print("1. View Customer Information")
+        print("2. Update Customer Address")
+        print("3. Register a New Customer")
+        print("4. Go Back")
+
+        userChoice = int(input("Enter here: "))
+
+        
+        if userChoice == 4:
+            #End Function
+            print("Returning to Main Menu...")
+            break
+
+        
+        while userChoice < 1 or userChoice > 4:
+            #Input verification
+            userChoice = int(input("Invalid choice. Please select a number between 1 and 4: "))
+
+            
+        if userChoice == 1:
+            #call function
+            viewCustomer()
+
+        if userChoice == 2:
+            #call function
+            editAddress()
+
+        if userChoice == 3:
+            #call function
+            newCustomer()
+    return
+
+
+#1. View Customer Info
+def viewCustomer():
+    #User Prompt
+    userInput = input("Please enter desired Customer id: ")
+
+
+    query1 = "select name, street_num, street_name, city, state, zip from customer where c_id = " + userInput + ";"
+    query2 = "select phone_number from c_phone_numbers where c_id = " + userInput + ";"
+    query3 = "select reward_num, date_joined from premium_membership where c_id = " + userInput + ";"
+    mycursor.execute(query1)
+    data1 = mycursor.fetchall()
+    
+    mycursor.execute(query2)
+    data2 = mycursor.fetchall()
+
+    mycursor.execute(query3)
+    data3 = mycursor.fetchall()
+
+    
+    #Print data
+    if not data1:
+        print("Customer not found")
+    else:
+        print("Name: " + str(data1[0][0]))
+        print("Address: " + str(data1[0][1]) + " " + str(data1[0][2]) + ", " + str(data1[0][3]) + ", " + str(data1[0][4]) + ", " + str(data1[0][5]))
+
+        for row in data2:
+            print("Phone Number(s): " + str(row[0]))
+
+        #To confirm if customer is premium
+        if data3:
+            print("Premium Member ID: " + str(data3[0][0]))
+            print("Date Joined: " + str(data3[0][1]))
+    return
+
+
+#2. Modify Customer Address
+def editAddress():
+    #User Prompts
+    userInput = input("Please enter desired Customer id: ")
+    query1 = "select * from customer where c_id = " + userInput + ";"
+    mycursor.execute(query1)
+    data = mycursor.fetchall()
+
+
+    if not data:
+        print("Customer not found")
+    else:
+        cStNum = input("Enter street number: ")
+        cStName = input("Enter street name: ")
+        cCity = input("Enter city: ")
+        cState = input("Enter state: ")
+        cZip = input("Enter zip: ")
+
+        query2 = "update customer set street_num = " + cStNum + ", street_name = \"" + cStName + "\", city = \"" + cCity + "\", state = \"" + cState + "\", zip = \"" + cZip + "\" where c_id = \"" + userInput + "\";"
+        mycursor.execute(query2)
+        conn.commit()
+        print("Address recorded in database")
+    return
+
+#3. Register New Customer
+def newCustomer():
+    #User Prompts
+    cId = input("Please enter desired Customer id: ")
+    query1 = "select * from customer where c_id = " + cId + ";"
+    mycursor.execute(query1)
+    data = mycursor.fetchall()
+
+
+    if data:
+        print("Customer already exists in database.")
+        return
+    else:
+        cName = input("Enter name: ")
+        cStNum = input("Enter street number: ")
+        cStName = input("Enter street name: ")
+        cCity = input("Enter city: ")
+        cState = input("Enter state: ")
+        cZip = input("Enter zip: ")
+        cPhNum = input("Enter phone number: ")
+
+        query2 = "insert into customer values(" + cId + ",\"" + cName + "\", \"" + cStName + "\"," + cStNum + ",\"" + cCity + "\",\"" + cState + "\",\"" + cZip + "\");"
+        query3 = "insert into c_phone_numbers values (" + cId + ",\"" + cPhNum + "\");"
+        mycursor.execute(query2)
+        mycursor.execute(query3)
+        conn.commit()
+        print("Customer recorded in database")
+    return
+
+
+
+#======== Premium Membership Functions ========#
+
+#Membership Hub
+def generalMem():
+    #User Prompt
+    while True:
+        print("Please make a selection:")
+        print("1. Register Customer for Membership")
+        print("2. Cancel a Customer's Membership")
+        print("3. Go Back")
+
+        userChoice = int(input("Enter here: "))
+
+        
+        if userChoice == 3:
+            #End Function
+            print("Returning to Main Menu...")
+            break
+
+        
+        while userChoice < 1 or userChoice > 3:
+            #Input verification
+            userChoice = int(input("Invalid choice. Please select a number between 1 and 3: "))
+
+            
+        if userChoice == 1:
+            #call function
+            newMember()
+
+        if userChoice == 2:
+            #call function
+            delMember()
+    return
+
+
+#1. Add New Member
+def newMember():
+    #User Prompts
+    cId = input("Enter customer id: ")
+
+    query1 = "select * from premium_membership where c_id = " + cId + ";"
+    mycursor.execute(query1)
+    data = mycursor.fetchall()
+
+
+    if data:
+        print("Customer already registered as a premium member.")
+    else:
+        #Insert records for customer
+        newRId = input("Enter new membership id: ")
+        newDate = input("Enter date joined: ")
+
+        regQuery = "insert into premium_membership values (\"" + newRId + "\", " + cId + ", .1, \"" + newDate + "\");"
+
+        mycursor.execute(regQuery)
+        conn.commit()
+        print("Customer Registered as Premium Member.")
+    return
+
+
+#2. Cancel Membership
+def delMember():
+    #User Prompts
+    cId = input("Enter customer id: ")
+
+    query1 = "select * from premium_membership where c_id = " + cId + ";"
+    mycursor.execute(query1)
+    data = mycursor.fetchall()
+
+
+    if not data:
+        print("Customer not registered as a premium member.")
+    else:
+        #Remove record from database
+        deleteCustQuery = "delete from premium_membership where c_id = " + cId + ";"
+        mycursor.execute(deleteCustQuery)
+        conn.commit()
+        print("Customer Premium Status cancelled.")
+    return
+
+
+
+#======== Delivery/Order Function ========#
+
+#Check Order Status
+def viewOrder():
+    userInput = input("Please enter order number: ")
+
+    query = "select name, o_date, p_name, quantity, s_id, o_total, date_shipped, expected_delivery from customer natural join products natural join orders natural join delivers where o_number = \"" + userInput + "\";"
+    mycursor.execute(query)
+    data = mycursor.fetchall()
+
+    #Print data
+    if not data:
+        print("No orders found")
+        return
+    else:
+        print("Ship to: " + str(data[0][0]))
+        print("Ordered on: " + str(data[0][1]))
+        print("Product Ordered: " + str(data[0][2]))
+        print("Quantity Ordered: " + str(data[0][3]))
+        print("From Store: " + str(data[0][4]))
+        print("Order Total: $" + str(data[0][5]))
+        print("Date Shipped: " + str(data[0][6]))
+        print("Expected Delivery: " + str(data[0][7]))
+    return
+
+
+        
+def main():
+    #main function
+    
+
+    #======== Creates tables ========#
+    
+    mycursor.execute("create table location(l_id varchar(10), street_name varchar(30), street_num int, city varchar(30), state varchar(2), zip varchar(5), primary key (l_id));")
+    mycursor.execute("create table store(s_id varchar(10), l_id varchar(10), business_hrs varchar(10), phone_num varchar(14), primary key (s_id), foreign key (l_id) references location (l_id) on delete cascade);")
+    mycursor.execute("create table products(p_id int, p_name varchar(50), price double, rating int, primary key (p_id));")
+    mycursor.execute("create table sells(p_id int, s_id varchar(10), primary key (p_id, s_id), foreign key (s_id) references store (s_id) on delete cascade, foreign key (p_id) references products (p_id) on delete cascade);")
+    mycursor.execute("create table customer(c_id int, name varchar(30), street_name varchar(30), street_num int, city varchar(30), state varchar(5), zip int, primary key(c_id));")
+    mycursor.execute("create table c_phone_numbers(c_id int, phone_number varchar(30), primary key (c_id, phone_number), foreign key (c_id) references customer(c_id) on delete cascade);")  
+    mycursor.execute("create table premium_membership(reward_num varchar(10), c_id int, discount_amt double, date_joined varchar(10), primary key (c_id, reward_num, discount_amt), foreign key (c_id) references customer(c_id) on delete cascade);")
+    mycursor.execute("create table orders(o_number int, c_id int, o_date varchar(10), o_total double, primary key (o_number), foreign key (c_id) references customer (c_id) on delete cascade);")
+    mycursor.execute("create table delivers(s_id varchar(10), p_id int, o_number int, quantity int, date_shipped varchar(10), expected_delivery varchar(10), primary key(p_id, o_number), foreign key (s_id) references store(s_id) on delete cascade, foreign key (p_id) references products(p_id) on delete cascade, foreign key (o_number) references orders (o_number) on delete cascade);")
+
+    #======== Inserts data into tables ========#
+
+    #Location
+    mycursor.execute("insert into location values ('L-1', 'Chambers St.', 654, 'Yonkers', 'NY', '10704');")
+    mycursor.execute("insert into location values ('L-2', 'Stonehill Dr', 300, 'Coventry', 'RI', '02919');")
+    mycursor.execute("insert into location values ('L-3', 'St. Marks Pl.', 7771, 'New York', 'NY', '10001');")
+    mycursor.execute("insert into location values ('L-4', 'Commerce Blvd.', 250, 'Fairless Hills', 'PA', '19030');")
+    mycursor.execute("insert into location values ('L-5', 'Wilson St.', 9905, 'Falls Church', 'VA', '22044');")
+    mycursor.execute("insert into location values ('L-6', 'Memorial Dr.', 435, 'Chicopee', 'MA', '01020');")
+    mycursor.execute("insert into location values ('L-7', 'Midland Ter.', 8133, 'Summit', 'NJ', '07901');")
+    mycursor.execute("insert into location values ('L-8', 'New Park Ave.', 507, 'West Hartford', 'CT', '06110');")
+    mycursor.execute("insert into location values ('L-9', 'Passaic Ave.', 1700, 'Kearny', 'NJ', '07032');")
+    mycursor.execute("insert into location values ('L-10', 'N Plainfield Rd.', 262, 'West Lebanon', 'NH', '03784');")
+
+
+    #Store
+    mycursor.execute("insert into store values ('S-001', 'L-9', '9AM - 10PM', '914-423-3232');")
+    mycursor.execute("insert into store values ('S-002', 'L-7', '9AM - 10PM', '457-433-5634');")
+    mycursor.execute("insert into store values ('S-003', 'L-1', '8AM - 10PM', '824-125-9522');")
+    mycursor.execute("insert into store values ('S-004', 'L-8', '9AM - 12AM', '202-555-0192');")
+    mycursor.execute("insert into store values ('S-005', 'L-2', '9AM - 10PM', '339-309-1819');")
+    mycursor.execute("insert into store values ('S-006', 'L-10', '8AM - 10PM', '717-240-5784');")
+    mycursor.execute("insert into store values ('S-007', 'L-4', '8AM - 11PM', '203-221-4158');")
+    mycursor.execute("insert into store values ('S-008', 'L-6', '9AM - 12AM', '570-752-6436');")
+    mycursor.execute("insert into store values ('S-009', 'L-3', '9AM - 11PM', '760-598-7268');")
+    mycursor.execute("insert into store values ('S-010', 'L-5', '9AM - 10PM', '936-672-0630');")
+
+    
+    #Products
+    mycursor.execute("insert into products values (1, '8 pc Baking Sheet Set', '19.99', 4);")
+    mycursor.execute("insert into products values (2, 'Sour Patch Kids Party Pack', '9.99', 5);")
+    mycursor.execute("insert into products values (3, 'Jumbo Huggies Baby Diapers', '29.99', 3);")
+    mycursor.execute("insert into products values (4, 'ViewSonic 40in. Curved Monitor', '3999.99', 5);")
+    mycursor.execute("insert into products values (5, 'PlayStation Pro Slim', '559.49', 2);")
+    mycursor.execute("insert into products values (6, 'Poland Spring 24 Pack', '15.25', 5);")
+    mycursor.execute("insert into products values (7, '500GB Samsung SSD', '299.99', 4);")
+    mycursor.execute("insert into products values (8, 'Maruchan Instant Ramen Family Pack', '12.49', 4);")
+    mycursor.execute("insert into products values (9, 'Lean Cuisine Meal Variety Pack', '19.99', 2);")
+    mycursor.execute("insert into products values (10, 'Beats by Dr. Dre', '1000.00', 1);")
+
+
+    #Sells
+    mycursor.execute("insert into sells values (1, 'S-001');")
+    mycursor.execute("insert into sells values (5, 'S-001');")
+    mycursor.execute("insert into sells values (7, 'S-001');")
+    mycursor.execute("insert into sells values (3, 'S-002');")
+    mycursor.execute("insert into sells values (2, 'S-002');")
+    mycursor.execute("insert into sells values (6, 'S-003');")
+    mycursor.execute("insert into sells values (4, 'S-004');")
+    mycursor.execute("insert into sells values (8, 'S-004');")
+    mycursor.execute("insert into sells values (10, 'S-004');")
+    mycursor.execute("insert into sells values (1, 'S-004');")
+    mycursor.execute("insert into sells values (9, 'S-005');")
+    mycursor.execute("insert into sells values (10, 'S-005');")
+    mycursor.execute("insert into sells values (5, 'S-006');")
+    mycursor.execute("insert into sells values (2, 'S-006');")
+    mycursor.execute("insert into sells values (7, 'S-006');")
+    mycursor.execute("insert into sells values (4, 'S-007');")
+    mycursor.execute("insert into sells values (3, 'S-008');")
+    mycursor.execute("insert into sells values (6, 'S-008');")
+    mycursor.execute("insert into sells values (7, 'S-009');")
+    mycursor.execute("insert into sells values (1, 'S-010');")
+    mycursor.execute("insert into sells values (8, 'S-010');")
+    
+    
+    #Customer
+    mycursor.execute("insert into customer values (1001, 'Rachel Asante', 'Inwood St.', 80, 'Yonkers', 'NY', '10704');")
+    mycursor.execute("insert into customer values (1002, 'Emelia Hadjarovic', 'Library Ave.', 150, 'Bronx', 'NY', '10453');")
+    mycursor.execute("insert into customer values (1003, 'Jessica Jones', 'La Sierra Cir.', 196, 'Bethlehem', 'PA', '18015');")
+    mycursor.execute("insert into customer values (1004, 'Rami Malek', 'East Gonzales St.', 49, 'Edison', 'NJ', '08817');")
+    mycursor.execute("insert into customer values (1005, 'Jacqueline Roe', 'Kimball Ave.', 50, 'Riverale', 'NY', '14731');")
+    mycursor.execute("insert into customer values (1006, 'Chris Williams', 'Marlborough St.', 997, 'Strongsville', 'MA', '01020');")
+    mycursor.execute("insert into customer values (1007, 'Carmello Rivera', 'Marconi St.', 475, 'Amityville', 'NH', '11701');")
+    mycursor.execute("insert into customer values (1008, 'Daniel Smith', 'Acacia Ave.', 761, 'Philadelphia', 'PA', '19426');")
+    mycursor.execute("insert into customer values (1009, 'Vivian Chen', 'West Yukon St.', 9724, 'Hillsboro', 'NJ', '08817');")
+    mycursor.execute("insert into customer values (1010, 'Annick Momplaisar', 'Tallwood Dr.', 602, 'Jamaica', 'NY', '11432');")
+    mycursor.execute("insert into customer values (1011, 'Natalia Szymankievic', 'S. Dunbar St.', 8630, 'Trumbull', 'CT', '06611');")
+    mycursor.execute("insert into customer values (1012, 'Aleena Reyes', 'Golden Star St.', 155, 'Belmont', 'MA', '02478');")
+    mycursor.execute("insert into customer values (1013, 'Penelope Redd', 'Wayne Ln.', 8400, 'Ashburn', 'VA', '20147');")
+    
+
+    #Phone Numbers
+    mycursor.execute("insert into c_phone_numbers values (1001, '914-413-6911');")
+    mycursor.execute("insert into c_phone_numbers values (1001, '914-376-7260');")
+    mycursor.execute("insert into c_phone_numbers values (1002, '650-961-6054');")
+    mycursor.execute("insert into c_phone_numbers values (1003, '303-764-5464');")
+    mycursor.execute("insert into c_phone_numbers values (1004, '510-266-9423');")
+    mycursor.execute("insert into c_phone_numbers values (1004, '407-206-4770');")
+    mycursor.execute("insert into c_phone_numbers values (1005, '318-766-3796');")
+    mycursor.execute("insert into c_phone_numbers values (1006, '636-403-7055');")
+    mycursor.execute("insert into c_phone_numbers values (1007, '520-320-2520');")
+    mycursor.execute("insert into c_phone_numbers values (1008, '414-375-9784');")
+    mycursor.execute("insert into c_phone_numbers values (1008, '714-302-7469');")
+    mycursor.execute("insert into c_phone_numbers values (1009, '361-299-6346');")
+    mycursor.execute("insert into c_phone_numbers values (1010, '785-527-8682');")
+    mycursor.execute("insert into c_phone_numbers values (1011, '254-220-1800');")
+    mycursor.execute("insert into c_phone_numbers values (1012, '952-239-2672');")
+    mycursor.execute("insert into c_phone_numbers values (1013, '240-536-1462');")
+
+    #Premium_membership
+    mycursor.execute("insert into premium_membership values ('R-001', 1001, 0.10, '07-07-10');")
+    mycursor.execute("insert into premium_membership values ('R-002', 1003, 0.10, '06-17-12');")
+    mycursor.execute("insert into premium_membership values ('R-003', 1004, 0.10, '12-24-18');")
+    mycursor.execute("insert into premium_membership values ('R-004', 1005, 0.10, '02-11-09');")
+    mycursor.execute("insert into premium_membership values ('R-005', 1007, 0.10, '10-30-17');")
+    mycursor.execute("insert into premium_membership values ('R-006', 1008, 0.10, '01-02-13');")
+    mycursor.execute("insert into premium_membership values ('R-007', 1009, 0.10, '07-19-15');")
+    mycursor.execute("insert into premium_membership values ('R-008', 1010, 0.10, '04-16-14');")
+    mycursor.execute("insert into premium_membership values ('R-009', 1011, 0.10, '06-18-10');")
+    mycursor.execute("insert into premium_membership values ('R-0010', 1013, 0.10, '11-01-11');")
+    
+    
+    #Orders
+    mycursor.execute("insert into orders values (4800, 1001, '12-02-18', '60.02');")
+    mycursor.execute("insert into orders values (4801, 1001, '11-05-18', '45.80');")
+    mycursor.execute("insert into orders values (4802, 1003, '01-15-18', '3899.00');")
+    mycursor.execute("insert into orders values (4803, 1005, '07-20-18', '30.06');")
+    mycursor.execute("insert into orders values (4804, 1006, '05-04-18', '2980.10'); ")
+    mycursor.execute("insert into orders values (4805, 1007, '10-31-18', '170.50'); ")
+    mycursor.execute("insert into orders values (4806, 1008, '09-11-18', '130.00'); ")
+    mycursor.execute("insert into orders values (4807, 1010, '04-05-18', '570.11'); ")
+    mycursor.execute("insert into orders values (4808, 1012, '08-07-18', '24.55');")
+    mycursor.execute("insert into orders values (4809, 1013, '06-16-18', '600.25');")
+    
+
+    #Delivers
+    mycursor.execute("insert into delivers values ('S-001', 1, 4800, 4, '12-03-18', '12-05-18'); ")
+    mycursor.execute("insert into delivers values ('S-002', 2, 4801, 5, '11-07-18', '11-11-18'); ")
+    mycursor.execute("insert into delivers values ('S-004', 4, 4802, 1, '01-16-18', '01-20-18'); ")
+    mycursor.execute("insert into delivers values ('S-003', 6, 4803, 2, '07-21-18', '07-28-18'); ")
+    mycursor.execute("insert into delivers values ('S-005', 10, 4804, 2, '05-07-18', '05-14-18'); ")
+    mycursor.execute("insert into delivers values ('S-005', 9, 4805, 10, '11-01-18', '11-10-18'); ")
+    mycursor.execute("insert into delivers values ('S-008', 3, 4806, 5, '09-12-18', '09-15-18'); ")
+    mycursor.execute("insert into delivers values ('S-009', 7, 4807, 2, '04-06-18', '04-10-18'); ")
+    mycursor.execute("insert into delivers values ('S-004', 8, 4808, 20, '08-09-18', '08-17-18'); ")
+    mycursor.execute("insert into delivers values ('S-006', 5, 4809, 1, '06-18-18', '06-26-18'); ")
+
+    
+    conn.commit()
+
+    #======== Menu Options ========#
+    while True:
+        #User Prompt
+        print("Please select a choice below:")
+        print("1. Access Products") 
+        print("2. View Store Information") 
+        print("3. Access Catalog")
+        print("4. Access Customer Information")
+        print("5. Access Premium Membership Information")
+        print("6. Check Status of Existing Order")
+        print("7. Exit")
+
+        userChoice = int(input("Enter here: "))
+
+        
+        if userChoice == 7:
+            #End Program
+            print("Program ending...")
+            break
+
+        
+        while userChoice < 1 or userChoice > 7:
+            #Input verification
+            userChoice = int(input("Invalid choice. Please select a number between 1 and 7: "))
+
+            
+        if userChoice == 1:
+            #call function
+            generalProducts()
+            
+        elif userChoice == 2:
+            #call function
+            viewStore()
+            
+        elif userChoice == 3:
+            #call function
+            viewCatalog()
+
+        elif userChoice == 4:
+            #call function
+            generalCustomer()
+
+        elif userChoice == 5:
+            #call function
+            generalMem()
+
+        elif userChoice == 6:
+            #call function
+            viewOrder()
+        
+        elif userChoice == 7:
+            print("Program ending...")
+            break
+        
+
+
+    conn.close()
+
+#Connects to MySQL
+conn = mysql.connector.connect(host = 'localhost',
+                                       user = 'root',
+                                       password = 'root')
+
+mycursor = conn.cursor()
+if conn.is_connected():
+    print('Connected to MySQL database')
+
+
+#Creates database
+try:
+    mycursor.execute("create database department")
+except:
+    mycursor.execute("drop database department")
+    mycursor.execute("create database department")
+
+#Uses database
+mycursor.execute("use department")
+
+
+
+main()
